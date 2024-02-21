@@ -8,12 +8,15 @@ const appError = require('../utils/appError');
 const { USER } = require('../utils/userRoles');
 
 router.route('/')
-            .get( usersController.getAllUsers)
+            .get( usersController.getAllUsers);
 
 router.route('/register')
-            .post( usersController.register)
+            .post( usersController.register);
 
 router.route('/login')
-            .post(usersController.login)
+            .post(usersController.login);
+
+ router.route('/forgotpassword')
+            .post(usersController.forgotpassword);
 
 module.exports = router;

@@ -63,8 +63,34 @@ const login = asyncWrapper(async (req, res, next) => {
     }
 });
 
+
+const forgotpassword = asyncWrapper(async (req, res, next) => {
+    const { email, newpassword } = req.body;
+
+    if (!email) {
+        const error = appError.create('email is required', 400, httpStatusText.FAIL);
+        return next(error);
+    }
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+        const error = appError.create('user not found', 400, httpStatusText.FAIL);
+        return next(error);
+    }
+
+    const hashedPassword = await bcrypt.hash(newpassword, 10);
+    user.password = hashedPassword;
+
+    // Save the updated user with the new hashed password
+    await user.save();
+
+    res.json({ status: httpStatusText.SUCCESS, data: {} });
+});
+
 module.exports = {
     getAllUsers,
     register,
-    login
+    login,
+    forgotpassword
 };
