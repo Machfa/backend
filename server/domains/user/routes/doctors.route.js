@@ -9,6 +9,8 @@ router.route("/login").post(doctorsController.loginDoctor);
 
 router.route("/forgotpassword").post(doctorsController.forgotpassword);
 
+router.route("/searchdoctor").post(doctorsController.searchDoctors);
+
 // Add other routes for Doctor model
 
 module.exports = router;

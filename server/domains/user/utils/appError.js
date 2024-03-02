@@ -1,3 +1,5 @@
+// appError.js
+
 class AppError extends Error {
     constructor(message, statusCode, statusText) {
         super(message);
@@ -6,5 +8,8 @@ class AppError extends Error {
     }
 }
 
-module.exports = AppError;
+function create(message, statusCode, statusText) {
+    return new AppError(message, statusCode, statusText);
+}
 
+module.exports = { AppError, create };
