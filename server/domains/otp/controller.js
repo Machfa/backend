@@ -58,7 +58,7 @@ const sendOTP = async (req, res) => {
 
     // Save OTP to the database
     const hashedOTP = await hashData(generatedOTP);
-    const duration = 10; // Set the desired duration in minutes
+    const duration = 30; // Set the desired duration in minutes
     const createdOTPRecord = await OTP.create({
       email,
       otp: hashedOTP,
