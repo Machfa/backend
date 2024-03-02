@@ -24,7 +24,7 @@ const doctorSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: [userRoles.USER, userRoles.ADMIN, userRoles.MANAGER],
-        default: userRoles.USER
+        default: userRoles.DOCTOR,
     },
     address: {
         type: String,
