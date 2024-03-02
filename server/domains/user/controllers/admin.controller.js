@@ -43,7 +43,10 @@ const deleteDoctor = asyncWrapper(async (req, res, next) => {
         return next(error);
       }
   
-      await doctor.remove();
+      // Ensure that doctor.toObject() returns a Mongoose document
+      const doctorDocument = doctor.toObject();
+  
+      await Doctor.deleteOne({ _id: doctorDocument._id });
       res.json({ status: httpStatusText.SUCCESS, message: 'Doctor deleted successfully', data: {} });
     } catch (error) {
       console.error('Error during doctor deletion:', error);
@@ -53,6 +56,7 @@ const deleteDoctor = asyncWrapper(async (req, res, next) => {
       return next(appErrorInstance);
     }
   });
+  
 
   const deleteUser = asyncWrapper(async (req, res, next) => {
     const { email, password } = req.body;

@@ -23,7 +23,7 @@ const doctorSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: [userRoles.USER, userRoles.ADMIN, userRoles.MANAGER],
+        enum: [userRoles.USER, userRoles.ADMIN, userRoles.DOCTOR],
         default: userRoles.DOCTOR,
     },
     address: {
