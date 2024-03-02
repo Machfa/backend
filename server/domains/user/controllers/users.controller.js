@@ -4,12 +4,6 @@ const httpStatusText = require('../utils/httpStatusText');
 const appError = require('../utils/appError');
 const bcrypt = require('bcryptjs');
 
-const getAllUsers = asyncWrapper(async (req, res) => {
-    // Get all users from DB using User Model
-    const users = await User.find({}, { password: 0, __v: 0 }); // Exclude password and __v fields
-
-    res.json({ status: httpStatusText.SUCCESS, data: { users } });
-});
 
 const register = asyncWrapper(async (req, res, next) => {
     const { firstName, lastName, email, password, role } = req.body;
@@ -89,7 +83,6 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
 });
 
 module.exports = {
-    getAllUsers,
     register,
     login,
     forgotpassword

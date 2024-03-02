@@ -4,12 +4,6 @@ const httpStatusText = require('../utils/httpStatusText');
 const appError = require('../utils/appError');
 const bcrypt = require('bcryptjs');
 
-const getAllDoctors = asyncWrapper(async (req, res) => {
-    // Récupérer tous les docteurs depuis la base de données en utilisant le modèle Doctor
-    const doctors = await Doctor.find({}, { password: 0, __v: 0 }); // Exclure les champs password et __v
-
-    res.json({ status: httpStatusText.SUCCESS, data: { doctors } });
-});
 
 const loginDoctor = asyncWrapper(async (req, res, next) => {
     const { email, password } = req.body;
@@ -97,7 +91,6 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
 // Les autres fonctions restent généralement similaires
 
 module.exports = {
-    getAllDoctors,
     registerDoctor,
     forgotpassword,
     loginDoctor

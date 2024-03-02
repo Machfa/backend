@@ -4,10 +4,12 @@ const httpStatusText = require('../domains/user/utils/httpStatusText');
 
 const userRouter = require('../domains/user/routes/users.route');
 const doctorRouter = require('../domains/user/routes/doctors.route');
+const adminRouter = require('../domains/user/routes/admin.route');
 const otpRouter = require('../domains/otp');
 
 router.use('/user', userRouter);
 router.use('/doctor', doctorRouter);
+router.use('/admin', adminRouter);
 router.use('/otp', otpRouter);
 
 // Middleware global pour la gestion des erreurs
