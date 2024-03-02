@@ -6,6 +6,8 @@ const { ADMIN } = require("../utils/userRoles"); // Assuming you have user roles
 // Routes for Doctor model
 router.route("/users").get(adminController.getAllUsers);
 router.route("/doctors").get(adminController.getAllDoctors);
+router.route("/deleteuser").delete(adminController.deleteUser);
+router.route("/deletedoctor").delete(adminController.deleteDoctor);
 
 module.exports = router;
 
