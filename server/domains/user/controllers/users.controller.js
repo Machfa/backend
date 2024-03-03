@@ -1,8 +1,10 @@
 const asyncWrapper = require("../middleware/asyncWrapper");
 const User = require('../models/user.model');
+const Rendezvous = require('../models/rendezvous.model');
 const httpStatusText = require('../utils/httpStatusText');
 const appError = require('../utils/appError');
 const bcrypt = require('bcryptjs');
+const moment = require("moment");
 
 
 const register = asyncWrapper(async (req, res, next) => {
@@ -82,8 +84,31 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
     res.json({ status: httpStatusText.SUCCESS, data: {} });
 });
 
+
+const rendezvous = async (req, res, next) => {
+    try {
+      req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
+      req.body.time = moment(req.body.time, "HH:mm").toISOString();
+      req.body.status = "pending";
+  
+      const rendezvousModel = new Rendezvous(req.body); // Assuming Rendezvous is your Mongoose model
+  
+      await rendezvousModel.save();
+      
+      res.json({ status: httpStatusText.SUCCESS, data: {} });
+    } catch (error) {
+      console.error('Error while saving rendezvous:', error);
+  
+      const errorMessage = 'Error saving rendezvous';
+      const status = 500; // Internal Server Error
+      const appErrorInstance = appError.create(errorMessage, status, httpStatusText.FAIL);
+      return next(appErrorInstance);
+    }
+  };
+  
 module.exports = {
     register,
     login,
-    forgotpassword
+    forgotpassword,
+    rendezvous
 };

@@ -12,5 +12,7 @@ router.route('/login')
 
  router.route('/forgotpassword')
             .post(usersController.forgotpassword);
+router.route('/rendezvous')
+            .post(usersController.rendezvous);
 
 module.exports = router;

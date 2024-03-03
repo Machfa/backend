@@ -30,7 +30,7 @@ const loginDoctor = asyncWrapper(async (req, res, next) => {
 });
 
 const registerDoctor = asyncWrapper(async (req, res, next) => {
-    const { firstName, lastName, email, password, role, address, specialization, experience, numberConsultationInDay, timings } = req.body;
+    const { firstName, lastName, phoneNumber, email, password, role, address, specialization, experience, numberConsultationInDay, timings } = req.body;
 
     const oldDoctor = await Doctor.findOne({ email: email });
 
@@ -44,6 +44,7 @@ const registerDoctor = asyncWrapper(async (req, res, next) => {
     const newDoctor = new Doctor({
         firstName,
         lastName,
+        phoneNumber,
         email,
         password: hashedPassword,
         role,

@@ -47,9 +47,10 @@ const doctorSchema = new mongoose.Schema({
         required: [true, "fee is required"],
     },
     timings: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
+        type: Array,
+        required: [true, "wrok timing is required"],
+      },
+    },
+    { timestamps: true });
 
 module.exports = mongoose.model('Doctor', doctorSchema);
