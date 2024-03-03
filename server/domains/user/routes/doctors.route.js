@@ -11,6 +11,10 @@ router.route("/forgotpassword").post(doctorsController.forgotpassword);
 
 router.route("/searchdoctor").post(doctorsController.searchDoctors);
 
+router.route("/myrendezvouspatient").post(doctorsController.getAllRendezvousWithMypatient);
+
+router.route("/statusRDV").post(doctorsController.StatusRDV);
+
 // Add other routes for Doctor model
 
 module.exports = router;

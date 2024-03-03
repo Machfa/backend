@@ -1,5 +1,6 @@
 const asyncWrapper = require("../middleware/asyncWrapper");
 const Doctor = require('../models/doctor.model');
+const Rendezvous = require('../models/rendezvous.model');
 const httpStatusText = require('../utils/httpStatusText');
 const appError = require('../utils/appError');
 const bcrypt = require('bcryptjs');
@@ -108,10 +109,55 @@ console.log(searchQuery);
     }
 });
 
+const getAllRendezvousWithMypatient = asyncWrapper(async (req, res, next) => {
+    try {
+      const doctorId = req.body._id;
+  
+      // Fetch all doctors with their rendezvous for a specific doctorId
+      const MyRendezvouspatient = await Rendezvous.find({ doctorId: doctorId })
+      .select('userId date status time'); ;
+  
+      res.json({ status: httpStatusText.SUCCESS, data: {MyRendezvouspatient} });
+    } catch (error) {
+      console.error('Error while fetching doctors with rendezvous:', error);
+  
+      const errorMessage = 'Error fetching doctors with rendezvous';
+      const status = 500; // Internal Server Error
+      const appErrorInstance = appError.create(errorMessage, status, httpStatusText.FAIL);
+      return next(appErrorInstance);
+    }
+  });
+
+  const StatusRDV = async (req, res, next) => {
+    try {
+        const { _id, status } = req.body; // Corrected the variable name from _Id to _id
+        const RDV = await Rendezvous.findByIdAndUpdate(
+            _id,
+            { status },
+            { new: true } // Added this option to return the updated document
+        );
+
+        if (!RDV) {
+            const error = appError.create('Rendezvous not found', 404, httpStatusText.FAIL);
+            return next(error);
+        }
+
+        res.json({ status: httpStatusText.SUCCESS, data: {} });
+    } catch (error) {
+        console.error('Error updating status:', error);
+
+        const errorMessage = 'Error updating status';
+        const status = 500; // Internal Server Error
+        const appErrorInstance = appError.create(errorMessage, status, httpStatusText.FAIL);
+        return next(appErrorInstance);
+    }
+};
 
 module.exports = {
     registerDoctor,
     forgotpassword,
     loginDoctor,
-    searchDoctors
+    searchDoctors,
+    getAllRendezvousWithMypatient,
+    StatusRDV
 };

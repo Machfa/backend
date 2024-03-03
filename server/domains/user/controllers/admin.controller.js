@@ -1,6 +1,7 @@
 const asyncWrapper = require("../middleware/asyncWrapper");
 const Doctor = require('../models/doctor.model'); // Assurez-vous d'importer correctement le modèle Doctor
 const User = require('../models/user.model');
+const Rendezvous = require('../models/rendezvous.model');
 const httpStatusText = require('../utils/httpStatusText');
 const appError = require('../utils/appError');
 const bcrypt = require('bcryptjs');
@@ -18,6 +19,14 @@ const getAllUsers = asyncWrapper(async (req, res) => {
     const users = await User.find({}, { password: 0, __v: 0 }); // Exclude password and __v fields
 
     res.json({ status: httpStatusText.SUCCESS, data: { users } });
+});
+
+
+const getAllRDV = asyncWrapper(async (req, res) => {
+  // Get all users from DB using User Model
+  const RDV = await Rendezvous.find({}); // Exclude password and __v fields
+
+  res.json({ status: httpStatusText.SUCCESS, data: { RDV } });
 });
 
 const deleteDoctor = asyncWrapper(async (req, res, next) => {
@@ -98,6 +107,7 @@ const deleteDoctor = asyncWrapper(async (req, res, next) => {
 module.exports ={
     getAllDoctors,
     getAllUsers,
+    getAllRDV,
     deleteDoctor,
     deleteUser
 }
