@@ -7,14 +7,15 @@ router.route("/register").post(doctorsController.registerDoctor);
 
 router.route("/login").post(doctorsController.loginDoctor);
 
-router.route("/forgotpassword").post(doctorsController.forgotpassword);
+router.route("/forgotpassword").patch(doctorsController.forgotpassword);
 
 router.route("/searchdoctor").post(doctorsController.searchDoctors);
 
-router.route("/myrendezvouspatient").post(doctorsController.getAllRendezvousWithMypatient);
+router
+  .route("/myrendezvouspatient")
+  .post(doctorsController.getAllRendezvousWithMypatient);
 
-router.route("/statusRDV").post(doctorsController.StatusRDV);
-
+router.route("/statusRDV").patch(doctorsController.StatusRDV);
 
 //router.route("/statusRDV/:id").put(doctorsController.StatusRDV);
 //const { id } = req.params;

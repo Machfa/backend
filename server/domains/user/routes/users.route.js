@@ -9,7 +9,7 @@ router.route('/register')
 router.route('/login')
             .post(usersController.login);
  router.route('/forgotpassword')
-            .post(usersController.forgotpassword);
+            .patch(usersController.forgotpassword);
 router.route('/rendezvous')
             .post(usersController.rendezvous);
 router.route('/mydoctorrendezvous')
@@ -17,6 +17,6 @@ router.route('/mydoctorrendezvous')
 router.route('/deleterendezvous')
             .delete(usersController.deleteRDV);
 router.route('/STSrendezvousUser')
-            .post(usersController.StatusRDVuser);
+            .patch(usersController.StatusRDVuser);
 
 module.exports = router;
