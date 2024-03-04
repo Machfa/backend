@@ -16,5 +16,7 @@ router.route('/mydoctorrendezvous')
             .post(usersController.getAllDoctorsRendezvous);
 router.route('/deleterendezvous')
             .delete(usersController.deleteRDV);
+router.route('/STSrendezvousUser')
+            .post(usersController.StatusRDVuser);
 
 module.exports = router;

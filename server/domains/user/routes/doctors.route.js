@@ -15,6 +15,9 @@ router.route("/myrendezvouspatient").post(doctorsController.getAllRendezvousWith
 
 router.route("/statusRDV").post(doctorsController.StatusRDV);
 
+
+//router.route("/statusRDV/:id").put(doctorsController.StatusRDV);
+//const { id } = req.params;
 // Add other routes for Doctor model
 
 module.exports = router;
