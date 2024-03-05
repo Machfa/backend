@@ -1,5 +1,6 @@
 const asyncWrapper = require("../middleware/asyncWrapper");
 const User = require("../models/user.model");
+const Doctor = require('../models/doctor.model');
 const Rendezvous = require("../models/rendezvous.model");
 const httpStatusText = require("../utils/httpStatusText");
 const appError = require("../utils/appError");
@@ -98,6 +99,31 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
   await user.save();
 
   res.json({ status: httpStatusText.SUCCESS, data: {} });
+});
+
+const searchDoctors = asyncWrapper(async (req, res, next) => {
+    const { searchQuery } = req.body;
+console.log(searchQuery);
+    if (!searchQuery) {
+        const error = appError.create('Search query parameter is required', 400, httpStatusText.FAIL);
+        return next(error);
+    }
+
+    const searchRegex = new RegExp(searchQuery, 'i');
+
+    const doctors = await Doctor.find({
+        $or: [
+            { firstName: searchRegex },
+            { lastName: searchRegex },
+            { specialization: searchRegex }
+        ]
+    });
+
+    if (doctors.length === 0) {
+        return res.json({ status: httpStatusText.SUCCESS, message: 'No doctors found with the provided search query' });
+    } else {
+        res.json({ status: httpStatusText.SUCCESS, data: { doctors } });
+    }
 });
 
 // Remplacez la fonction rendezvous par bookAppointment
@@ -266,4 +292,5 @@ module.exports = {
   getAllDoctorsRendezvous,
   deleteRDV,
   StatusRDVuser,
+  searchDoctors
 };

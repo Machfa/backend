@@ -84,30 +84,6 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
     res.json({ status: httpStatusText.SUCCESS, data: {} });
 });
 
-const searchDoctors = asyncWrapper(async (req, res, next) => {
-    const { searchQuery } = req.body;
-console.log(searchQuery);
-    if (!searchQuery) {
-        const error = appError.create('Search query parameter is required', 400, httpStatusText.FAIL);
-        return next(error);
-    }
-
-    const searchRegex = new RegExp(searchQuery, 'i');
-
-    const doctors = await Doctor.find({
-        $or: [
-            { firstName: searchRegex },
-            { lastName: searchRegex },
-            { specialization: searchRegex }
-        ]
-    });
-
-    if (doctors.length === 0) {
-        return res.json({ status: httpStatusText.SUCCESS, message: 'No doctors found with the provided search query' });
-    } else {
-        res.json({ status: httpStatusText.SUCCESS, data: { doctors } });
-    }
-});
 
 const getAllRendezvousWithMypatient = asyncWrapper(async (req, res, next) => {
     try {
@@ -153,11 +129,38 @@ const getAllRendezvousWithMypatient = asyncWrapper(async (req, res, next) => {
     }
 };
 
+const SearchRDVdujour = async (req, res, next) => {
+    try {
+        const { doctorId, date } = req.body;
+        
+        // Utilisez find à la place de findOne pour obtenir un tableau de résultats
+        const RDV = await Rendezvous.find({ doctorId:doctorId
+            , date:date });
+
+        // Vérifiez si la longueur du tableau RDV est zéro
+        if (RDV.length === 0) {
+            const error = appError.create('La liste pour ce jour-là n\'existe pas', 404, httpStatusText.FAIL);
+            return next(error);
+        }
+
+        res.json({ status: httpStatusText.SUCCESS, data: { RDV } });
+    } catch (error) {
+        console.error('Error searching rendezvous:', error);
+
+        const errorMessage = 'Error searching rendezvous';
+        const status = 500; // Internal Server Error
+        const appErrorInstance = appError.create(errorMessage, status, httpStatusText.FAIL);
+        return next(appErrorInstance);
+    }
+};
+
+
+
 module.exports = {
     registerDoctor,
     forgotpassword,
     loginDoctor,
-    searchDoctors,
     getAllRendezvousWithMypatient,
-    StatusRDV
+    StatusRDV,
+    SearchRDVdujour
 };

@@ -18,5 +18,7 @@ router.route('/deleterendezvous')
             .delete(usersController.deleteRDV);
 router.route('/STSrendezvousUser')
             .patch(usersController.StatusRDVuser);
+router.route("/searchdoctor")
+            .post(usersController.searchDoctors);
 
 module.exports = router;
