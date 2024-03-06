@@ -20,5 +20,8 @@ router.route('/STSrendezvousUser')
             .patch(usersController.StatusRDVuser);
 router.route("/searchdoctor")
             .post(usersController.searchDoctors);
+router.route("/rendezvoushoursdisponible")
+        .post(usersController.getAvailableTime);
 
 module.exports = router;
+

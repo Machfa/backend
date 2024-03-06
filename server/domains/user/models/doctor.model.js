@@ -42,15 +42,42 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    numberConsultationInDay: {
-        type: Number,
-        required: [true, "fee is required"],
-    },
-    timings: {
-        type: Array,
-        required: [true, "wrok timing is required"],
-      },
-    },
+    timings: [
+        {
+            day: {
+                type: String,
+                required: true,
+                enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            },
+            hours: [
+                {
+                    start: {
+                        type: String,
+                        required: true,
+                        default: '08:00'
+                    },
+                    end: {
+                        type: String,
+                        required: true,
+                        default: '12:00'
+                    }
+                },
+                {
+                    start: {
+                        type: String,
+                        required: true,
+                        default: '14:00'
+                    },
+                    end: {
+                        type: String,
+                        required: true,
+                        default: '17:00'
+                    }
+                }
+            ]
+        }
+    ],
+},
     { timestamps: true });
 
 module.exports = mongoose.model('Doctor', doctorSchema);

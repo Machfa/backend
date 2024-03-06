@@ -8,7 +8,7 @@ const bcrypt = require("bcryptjs");
 const moment = require("moment");
 
 const register = asyncWrapper(async (req, res, next) => {
-  const { firstName, lastName, email, password, role } = req.body;
+  const { firstName, lastName, email, password, role,phoneNumber } = req.body;
 
   const oldUser = await User.findOne({ email: email });
 
@@ -30,6 +30,7 @@ const register = asyncWrapper(async (req, res, next) => {
     email,
     password: hashedPassword,
     role,
+    phoneNumber
   });
 
   await newUser.save();
@@ -129,14 +130,50 @@ console.log(searchQuery);
 // Remplacez la fonction rendezvous par bookAppointment
 const rendezvous = async (req, res, next) => {
   try {
-    const date = moment(req.body.date, "DD-MM-YY").toISOString();
-    const fromTime = moment(req.body.time, "HH:mm")
-      .subtract(14, "minutes")
-      .toISOString();
-    const toTime = moment(req.body.time, "HH:mm")
-      .add(14, "minutes")
-      .toISOString();
+    const requestedDate = moment(req.body.date, "YYYY-MM-DD"); // Updated format
+    const requestedTime = moment(req.body.time, "HH:mm");
+
     const doctorId = req.body.doctorId;
+    const doctor = await Doctor.findById(doctorId);
+
+    if (!doctor) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Doctor not found",
+      });
+    }
+
+    const dayOfWeek = requestedDate.format("dddd");
+
+    const matchingDay = doctor.timings.find((timing) => timing.day === dayOfWeek);
+
+    if (!matchingDay) {
+      return res.status(200).json({
+        status: "fail",
+        message: `Doctor is not available on ${dayOfWeek}. Please choose another day.`,
+        availableDays: doctor.timings.map((timing) => timing.day),
+      });
+    }
+
+    const matchingHours = matchingDay.hours.find((hour) => {
+      const start = moment(hour.start, "HH:mm");
+      const end = moment(hour.end, "HH:mm");
+
+      // Check if requestedTime is within the doctor's working hours
+      return requestedTime.isBetween(start, end, null, "[]");
+    });
+
+    if (!matchingHours) {
+      return res.status(200).json({
+        status: "fail",
+        message: "Doctor is not available at this time. Please choose another time.",
+      });
+    }
+
+    const date = requestedDate.toISOString();
+    const fromTime = requestedTime.clone().subtract(14, "minutes").toISOString();
+    const toTime = requestedTime.clone().add(14, "minutes").toISOString();
+
     const appointments = await Rendezvous.find({
       doctorId,
       date,
@@ -147,36 +184,36 @@ const rendezvous = async (req, res, next) => {
     });
 
     if (appointments.length > 0) {
-      return res.status(200).send({
-        message: "rendezvous not available at this time",
-        success: false,
-      });
-    } else {
-      req.body.date = moment(req.body.date, "DD-MM-YYYY").toISOString();
-      req.body.time = moment(req.body.time, "HH:mm").toISOString();
-      req.body.status = "pending";
-
-      const rendezvousModel = new Rendezvous(req.body); // Assuming Rendezvous is your Mongoose model
-      await rendezvousModel.save();
-
-      return res.status(200).send({
-        success: true,
-        message: "rendezvous successfully register",
+      return res.status(200).json({
+        status: "fail",
+        message: "Rendezvous not available at this time",
       });
     }
+
+    // If all checks pass, proceed to register the rendezvous
+    req.body.date = date;
+    req.body.time = requestedTime.toISOString();
+    req.body.status = "pending";
+
+    const rendezvousModel = new Rendezvous(req.body);
+    await rendezvousModel.save();
+
+    return res.status(200).json({
+      status: "success",
+      message: "Rendezvous successfully registered",
+    });
   } catch (error) {
     console.error("Error while processing rendezvous:", error);
 
-    const errorMessage = "Error processing rendezvous";
-    const status = 500; // Internal Server Error
-    const appErrorInstance = appError.create(
-      errorMessage,
-      status,
-      httpStatusText.FAIL
-    );
-    return next(appErrorInstance);
+    return res.status(500).json({
+      status: "fail",
+      message: "Error processing rendezvous",
+    });
   }
 };
+
+
+
 
 const StatusRDVuser = async (req, res, next) => {
   try {
@@ -284,6 +321,69 @@ const deleteRDV = asyncWrapper(async (req, res, next) => {
   }
 });
 
+const getAvailableTime = async (req, res, next) => {
+  const { doctorId, requestedDate } = req.body;
+  try {
+    const doctor = await Doctor.findById(doctorId);
+
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    const dayOfWeek = moment(requestedDate).format("dddd");
+
+    const matchingDay = doctor.timings.find(
+      (timing) => timing.day === dayOfWeek
+    );
+
+    if (!matchingDay) {
+      throw new Error(`Doctor is not available on ${dayOfWeek}`);
+    }
+
+    const workingHours = matchingDay.hours;
+
+    const existingAppointments = await Rendezvous.find({
+      doctorId,
+      date: moment(requestedDate).toISOString(),
+    });
+
+    const ALLTimeSlots = existingAppointments.map((appointment) =>
+      moment(appointment.time).format("HH:mm")
+    );
+
+    const availableTimeSlots = [];
+    const timeInterval = 15; // in minutes
+
+    for (let i = 0; i < workingHours.length; i++) {
+      const start = moment(workingHours[i].start, "HH:mm");
+      const end = moment(workingHours[i].end, "HH:mm");
+
+      while (start.isBefore(end)) {
+        const timeSlot = start.format("HH:mm");
+        const isAvailable = !ALLTimeSlots.includes(timeSlot);
+
+        availableTimeSlots.push({ time: timeSlot, available: isAvailable });
+
+        start.add(timeInterval, "minutes");
+      }
+    }
+
+    return res.json({
+      status: httpStatusText.SUCCESS,
+      data: { availableTimeSlots },
+    });
+  } catch (error) {
+    console.error("Error while getting available time slots:", error);
+    return res.status(500).json({
+      status: "fail",
+      message: "Error getting available time slots",
+    });
+  }
+};
+
+
+
+
 module.exports = {
   register,
   login,
@@ -292,5 +392,6 @@ module.exports = {
   getAllDoctorsRendezvous,
   deleteRDV,
   StatusRDVuser,
-  searchDoctors
+  searchDoctors,
+  getAvailableTime
 };
