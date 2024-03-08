@@ -7,15 +7,13 @@ const cors = require('cors');
 const path = require('path');
 const routes = require('./routes');
 
-const httpStatusText = require('./domains/user/utils/httpStatusText');
-// create express app
 const app = express();
 
-app.use(cors())
+app.use(cors());
 app.use(bodyParser());
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use('/', routes);
-
 const PORT = 4000;
 
 const startApp = async () => {

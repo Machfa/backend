@@ -24,15 +24,17 @@ const register = asyncWrapper(async (req, res, next) => {
   // Password hashing
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  const avatar = req.file.filename ? req.file.filename : 'profile1.png';
   const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    role,
-    phoneNumber
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      role,
+      phoneNumber,
+      avatar: avatar
   });
-
+  
   await newUser.save();
 
   res
@@ -100,6 +102,38 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
   await user.save();
 
   res.json({ status: httpStatusText.SUCCESS, data: {} });
+});
+
+const StarEvaluation = asyncWrapper(async (req, res, next) => {
+  const { newstar, _id } = req.body;
+
+  try {
+      // Use `findOne` instead of `find` to get a single document
+      const doctor = await Doctor.findOne({ _id: _id });
+
+      if (!doctor) {
+          const error = appError.create("Doctor not found", 404, httpStatusText.FAIL);
+          return next(error);
+      }
+
+      // Update the total stars and the number of evaluations
+      doctor.totalStars = doctor.totalStars + newstar;
+      doctor.numberOfEvaluations = doctor.numberOfEvaluations + 1;
+
+      // Calculate the average star rating
+      doctor.star = Math.min(5, doctor.totalStars / doctor.numberOfEvaluations);
+
+      await doctor.save();
+
+      res.json({ status: httpStatusText.SUCCESS, data: {} });
+  } catch (error) {
+      console.error("Error during star evaluation:", error);
+
+      const errorMessage = "Error during star evaluation";
+      const status = 500; // Internal Server Error
+      const appErrorInstance = appError.create(errorMessage, status, httpStatusText.FAIL);
+      return next(appErrorInstance);
+  }
 });
 
 const searchDoctors = asyncWrapper(async (req, res, next) => {
@@ -194,6 +228,7 @@ const rendezvous = async (req, res, next) => {
     req.body.date = date;
     req.body.time = requestedTime.toISOString();
     req.body.status = "pending";
+    req.body.avatar = doctor.avatar;
 
     const rendezvousModel = new Rendezvous(req.body);
     await rendezvousModel.save();
@@ -393,5 +428,6 @@ module.exports = {
   deleteRDV,
   StatusRDVuser,
   searchDoctors,
-  getAvailableTime
+  getAvailableTime,
+  StarEvaluation
 };

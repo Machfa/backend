@@ -27,6 +27,9 @@ const rendezvousSchema = new mongoose.Schema(
       required: true,
       default: "pending",
     },
+    avatar:{
+      type: String
+    }
   },
   { timestamps: true }
 );

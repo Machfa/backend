@@ -41,7 +41,7 @@ const registerDoctor = asyncWrapper(async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    const avatar = req.file.filename ? req.file.filename : 'profile.png';
     const newDoctor = new Doctor({
         firstName,
         lastName,
@@ -52,7 +52,8 @@ const registerDoctor = asyncWrapper(async (req, res, next) => {
         address,
         specialization,
         experience,
-        timings
+        timings,
+        avatar:avatar
     });
 
     await newDoctor.save();

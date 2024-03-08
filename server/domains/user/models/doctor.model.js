@@ -42,6 +42,26 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    avatar: {
+        type: String,
+        default:"../uploads/profile.png"
+    },
+    star: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
+    numberOfEvaluations: {
+        type: Number,
+        default: 0,
+        min: 0
+    },
+    totalStars:{
+        type: Number,
+        default: 0,
+        min: 0
+    },
     timings: [
         {
             day: {
