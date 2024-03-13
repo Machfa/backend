@@ -166,7 +166,7 @@ const rendezvous = async (req, res, next) => {
   try {
     const requestedDate = moment(req.body.date, "YYYY-MM-DD"); // Updated format
     const requestedTime = moment(req.body.time, "HH:mm");
-
+     console.log(req.body.date);
     const doctorId = req.body.doctorId;
     const doctor = await Doctor.findById(doctorId);
 
@@ -430,4 +430,5 @@ module.exports = {
   searchDoctors,
   getAvailableTime,
   StarEvaluation
+  
 };

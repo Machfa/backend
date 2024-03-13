@@ -11,29 +11,55 @@ const rendezvousSchema = new mongoose.Schema(
       required: true,
     },
     userInfo: {
+      diagnoses: {
+        type: String,
+        default: "", // Default value for diagnoses
+      },
+      prescription: {
+        type: String,
+        default: "", // Default value for prescription
+      },
+      examinationResult: {
+        type: String,
+        default: "", // Default value for examinationResult
+      },
+    },
+      medicalReport: {
+        type: String,
+        default: "../uploads/medicalreport.jpg", // Default value for medicalReport
+      },
+      IRMReport: {
+        type: String,
+        default: "../uploads/irmreport.jpg", // Default value for medicalReport
+      },
+      ECGReport: {
+        type: String,
+        default: "../uploads/ecgreport.jpg", // Default value for medicalReport
+      },
+      Bloodtest: {
+        type: String,
+        default: "../uploads/bloodtestreport.jpg", // Default value for medicalReport
+      },
+    date: {
       type: String,
       required: true,
     },
-    date: {
-        type: String,
-        required: true,
-      },
-      time: {
-        type: String,
-        required: true,
-      },
+    time: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       required: true,
       default: "pending",
     },
-    avatar:{
-      type: String
-    }
+    avatar: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-const rendezvous = mongoose.model("rendezvous", rendezvousSchema);
+const Rendezvous = mongoose.model("Rendezvous", rendezvousSchema);
 
-module.exports = rendezvous;
+module.exports = Rendezvous;

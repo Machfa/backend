@@ -154,6 +154,62 @@ const SearchRDVdujour = async (req, res, next) => {
     }
 };
 
+const userInfoaboutAppoinment = asyncWrapper(async (req, res, next) => {
+    try {
+        const _id = req.body._id;
+
+        // Fetch the rendezvous document for the given _id
+        const rendezvous = await Rendezvous.findOne({ _id });
+
+        if (!rendezvous) {
+            const error = appError.create('Rendezvous not found', 404, httpStatusText.FAIL);
+            return next(error);
+        }
+
+        // Update userInfo properties if they exist in the request body
+        if (req.body.userInfo) {
+            if (req.body.userInfo.diagnoses) {
+                rendezvous.userInfo.diagnoses = req.body.userInfo.diagnoses;
+            }
+            if (req.body.userInfo.prescription) {
+                rendezvous.userInfo.prescription = req.body.userInfo.prescription;
+            }
+            if (req.body.userInfo.examinationResult) {
+                rendezvous.userInfo.examinationResult = req.body.userInfo.examinationResult;
+            }
+        }
+
+        // Update medical reports if they exist in the request files
+        if (req.files) {
+            if (req.files['medicalReport']) {
+                rendezvous.medicalReport = req.files['medicalReport'][0].filename;
+            }
+            if (req.files['ECGReport']) {
+                rendezvous.ECGReport = req.files['ECGReport'][0].filename;
+            }
+            if (req.files['IRMReport']) {
+                rendezvous.IRMReport = req.files['IRMReport'][0].filename;
+            }
+            if (req.files['Bloodtest']) {
+                rendezvous.Bloodtest = req.files['Bloodtest'][0].filename;
+            }
+        }
+
+        // Save the updated rendezvous document
+        await rendezvous.save();
+
+        res.json({ status: httpStatusText.SUCCESS, data: { rendezvous } });
+    } catch (error) {
+        console.error('Error while adding information to rendezvous:', error);
+
+        const errorMessage = 'Error adding information to rendezvous';
+        const status = 500; // Internal Server Error
+        const appErrorInstance = appError.create(errorMessage, status, httpStatusText.FAIL);
+        return next(appErrorInstance);
+    }
+});
+
+
 
 
 module.exports = {
@@ -162,5 +218,6 @@ module.exports = {
     loginDoctor,
     getAllRendezvousWithMypatient,
     StatusRDV,
-    SearchRDVdujour
+    SearchRDVdujour,
+    userInfoaboutAppoinment
 };
