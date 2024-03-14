@@ -87,7 +87,7 @@ const forgotpassword = asyncWrapper(async (req, res, next) => {
 
 const getAllRendezvousWithMypatient = asyncWrapper(async (req, res, next) => {
     try {
-      const doctorId = req.body._id;
+      const doctorId = req.body.doctorId;
   
       // Fetch all doctors with their rendezvous for a specific doctorId
       const MyRendezvouspatient = await Rendezvous.find({ doctorId: doctorId })

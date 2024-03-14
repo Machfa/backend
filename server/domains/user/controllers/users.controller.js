@@ -8,7 +8,7 @@ const bcrypt = require("bcryptjs");
 const moment = require("moment");
 
 const register = asyncWrapper(async (req, res, next) => {
-  const { firstName, lastName, email, password, role,phoneNumber } = req.body;
+  const { firstName, lastName, email,role, password,phoneNumber } = req.body;
 
   const oldUser = await User.findOne({ email: email });
 
@@ -23,8 +23,12 @@ const register = asyncWrapper(async (req, res, next) => {
 
   // Password hashing
   const hashedPassword = await bcrypt.hash(password, 10);
-
-  const avatar = req.file.filename ? req.file.filename : 'profile1.png';
+  let avatar;
+  if (req.file) {
+    avatar = req.file.filename;
+  } else {
+    avatar = "../uploads/profile1.png"; // Default avatar if not provided
+  }
   const newUser = new User({
       firstName,
       lastName,
@@ -247,9 +251,6 @@ const rendezvous = async (req, res, next) => {
   }
 };
 
-
-
-
 const StatusRDVuser = async (req, res, next) => {
   try {
     const { _id, status } = req.body; // Corrected the variable name from _Id to _id
@@ -285,13 +286,20 @@ const StatusRDVuser = async (req, res, next) => {
 
 const getAllDoctorsRendezvous = asyncWrapper(async (req, res, next) => {
   try {
-    const userId = req.body._id;
+    const userId = req.body.userId;
 
     // Fetch all doctors with their rendezvous for a specific userId
     const doctorsRendezvous = await Rendezvous.find({ userId: userId }).select(
       "doctorId date status time"
     );
-
+    if(!doctorsRendezvous){
+      const error = appError.create(
+        "Rendezvous not found",
+        404,
+        httpStatusText.FAIL
+      );
+      return next(error);
+    }
     res.json({ status: httpStatusText.SUCCESS, data: { doctorsRendezvous } });
   } catch (error) {
     console.error("Error while fetching doctors with rendezvous:", error);
@@ -365,7 +373,10 @@ const getAvailableTime = async (req, res, next) => {
       throw new Error("Doctor not found");
     }
 
-    const dayOfWeek = moment(requestedDate).format("dddd");
+    // Formater la date dans un format ISO ou RFC2822 reconnu par Moment.js
+    const formattedDate = moment(requestedDate, "DD-MM-YYYY").toISOString();
+
+    const dayOfWeek = moment(formattedDate).format("dddd");
 
     const matchingDay = doctor.timings.find(
       (timing) => timing.day === dayOfWeek
@@ -379,7 +390,7 @@ const getAvailableTime = async (req, res, next) => {
 
     const existingAppointments = await Rendezvous.find({
       doctorId,
-      date: moment(requestedDate).toISOString(),
+      date: formattedDate, // Utilisez la date formatée ici
     });
 
     const ALLTimeSlots = existingAppointments.map((appointment) =>
@@ -415,6 +426,7 @@ const getAvailableTime = async (req, res, next) => {
     });
   }
 };
+
 
 
 
