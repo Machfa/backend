@@ -41,7 +41,12 @@ const registerDoctor = asyncWrapper(async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const avatar = req.file.filename ? req.file.filename : 'profile.png';
+    let avatar;
+  if (req.file) {
+    avatar = req.file.filename;
+  } else {
+    avatar = "../uploads/profile1.png"; // Default avatar if not provided
+  }
     const newDoctor = new Doctor({
         firstName,
         lastName,
